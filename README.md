@@ -28,3 +28,4 @@ O vídeo de entrada nunca é sobrescrito. Os resultados são gravados numa pasta
 Não adicione tokens, credenciais, arquivos `.env`, configurações do Google Drive, vídeos pessoais nem logs. Execute o verificador local `python tools/verificar_seguranca.py .` antes de mudanças.
 
 **O código do Editor Natinha real não está aqui:** a máquina com o editor original estava desconectada e continua pendente de auditoria. A licença também não foi definida. Consulte os documentos em `docs/` antes de qualquer abertura ao público.
+## Codigo do Editor Natinha original: uma copia separada do painel, motores Python e Remotion esta em codigo-original/. Leia codigo-original/CODIGO_ORIGINAL_LEIA.md antes de tentar instalar. Nao inclui credenciais, midias nem arquivos pessoais.

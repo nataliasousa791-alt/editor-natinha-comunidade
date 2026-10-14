@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor Natinha · Remotion</title>
+<style>
+:root{--bg:#100d1b;--panel:#1c1730;--panel2:#292140;--line:#3b3155;--ink:#f7f1e9;--muted:#b4a7c9;--gold:#f2c14e;--ok:#a1e5a8;--warn:#f4a9a9}
+*{box-sizing:border-box}[hidden]{display:none!important}body{background:var(--bg);color:var(--ink);margin:0;font:15px/1.5 system-ui,Segoe UI,sans-serif}
+header{padding:17px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+header strong{font-size:20px}a{color:var(--gold)}header a{text-decoration:none;color:var(--muted)}
+main{max-width:1080px;margin:auto;padding:28px 18px 70px}
+.hero{display:flex;align-items:center;gap:18px;margin-bottom:20px}.ico{background:#3a2953;border:1px solid var(--line);font-size:33px;padding:15px;border-radius:20px}
+h1{font-size:30px;line-height:1.16;margin:0 0 6px;letter-spacing:-.03em}h2{font-size:20px;margin:0 0 14px}
+p{margin:0 0 12px}.muted{color:var(--muted)}.small{font-size:13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:23px;margin:16px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+label{display:block;color:var(--muted);font-size:13px;margin:6px 0 6px}
+input[type=text],input[type=number],input[type=file],select{color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px;font:inherit;width:100%}
+input[type=checkbox]{accent-color:var(--gold)}select:focus,input:focus{outline:2px solid #8e68de}
+button,.action{border-radius:10px;padding:12px 16px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);font:inherit;cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.action:hover{border-color:var(--gold)}button.primary{color:#211528;border:0;background:var(--gold);font-weight:800}
+button:disabled{opacity:.5;cursor:wait}.hint{background:#241b35;border-left:3px solid var(--gold);padding:11px 13px;border-radius:6px;font-size:13px;color:var(--muted)}
+.badge{border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:12px;color:var(--gold)}
+.progress{height:9px;background:#0e0b17;border-radius:10px;overflow:hidden;margin:15px 0 8px}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,#8b6cdf,var(--gold));transition:width .3s}
+.log{white-space:pre-wrap;max-height:180px;overflow:auto;border-radius:9px;background:#0a0811;color:#b9b4c6;padding:12px;font:12px/1.6 Consolas,monospace}
+.err{color:var(--warn)}.success{color:var(--ok)}.video-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.video-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+video{width:100%;max-height:440px;background:#050505;border-radius:8px;object-fit:contain}
+.simple-list{display:grid;gap:8px} .entry{background:var(--panel2);padding:12px 15px;border:1px solid var(--line);border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+footer{padding:14px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:680px){.grid{grid-template-columns:1fr}.hero{align-items:flex-start}h1{font-size:25px}.card{padding:17px}}
+</style>
+</head>
+<body>
+<header><strong>Editor <span style="color:var(--gold)">Natinha</span></strong><a href="/">← Voltar aos modos anteriores</a></header>
+<main>
+<div class="hero"><div class="ico">🎬</div><div><h1>Edição cinematográfica</h1><p class="muted">Remotion · cortes automáticos, vídeo longo e prévias para aprovação</p></div></div>
+<div class="card">
+<h2>Robô Remotion experimental (separado)</h2>
+<p class="muted">Este modo executa o robô cinematográfico experimental de forma independente, sem aproveitar os cortes escolhidos pelo Natinha original. Para unir as habilidades dos dois, use a opção acima.</p>
+<form id="editor">
+<div class="grid">
+<div><label for="video">Selecionar vídeo bruto</label><input id="video" type="file" name="video" accept="video/*"></div>
+<div><label for="caminho">Ou caminho completo no PC (mais rápido)</label><input id="caminho" type="text" name="caminho" placeholder="C:/Users/SEU_USUARIO\Videos\meu_video.mp4"></div>
+<div><label for="formato">Formato</label><select id="formato" name="formato"><option value="9x16">Vertical · 9:16 (Reels, TikTok, Shorts)</option><option value="16x9">Horizontal · 16:9 (YouTube)</option></select></div>
+<div><label for="estilo">Estilo de edição</label><select id="estilo" name="estilo"><option value="completo">Cinematográfica (Remotion + motion + legendas)</option><option value="limpo" disabled>Limpa (disponível para horizontal)</option></select></div>
+<div id="blocoCortes"><label for="cortes">Quantidade de cortes verticais</label><select id="cortes" name="cortes"><option>1</option><option>2</option><option>3</option></select></div>
+<div id="blocoDuracao"><label for="alvo">Duração desejada por corte (segundos)</label><input id="alvo" name="alvo" type="number" min="15" max="600" value="45"></div>
+<div style="grid-column:1/-1"><label for="destino">Pasta extra de saída (opcional)</label><input id="destino" name="destino" type="text" placeholder="Deixe vazio para usar Resultados\Remotion">
+<p class="small muted">Resultados padrão: Editor Natinha → Resultados → Remotion. Nunca exporta automaticamente para o Robô Postador.</p></div>
+</div>
+<details style="margin-top:8px"><summary class="muted">Ajustes avançados para trechos específicos (opcional)</summary>
+<div class="grid" style="margin-top:8px"><div><label>Começar no segundo</label><input name="inicio" type="number" min="0" step=".1" value="0"></div>
+<div><label>Terminar no segundo (0 = até o final)</label><input name="fim" type="number" min="0" step=".1" value="0"></div></div></details>
+<label class="row" style="margin:20px 0 16px;color:var(--ink)"><input name="permitir_online" value="sim" type="checkbox"> Autorizo consultas externas gratuitas de IA e busca de B-roll (Gemini/Pixabay)</label>
+<div class="hint">Sem autorização, o modo é offline: aproveita regras, transcrição local e clipes já existentes. Uma edição pode ficar visualmente mais simples. Nenhum serviço pago é acionado por esta integração.</div>
+<div class="row" style="margin-top:18px"><button class="primary" type="submit" id="iniciar">INICIAR EDIÇÃO</button><span class="muted small" id="aviso"></span></div>
+</form>
+</div>
+<div class="card" id="integracaoNativa">
+  <h2>🔗 Natinha original + Remotion</h2>
+  <p class="muted">Use a edição que o Natinha original já fez: cortes inteligentes, voz limpa, palavras sincronizadas e B-rolls. O Remotion cria o acabamento cinematográfico por cima. Os arquivos originais não são alterados.</p>
+  <div class="grid">
+    <div><label for="originalProjeto">Projeto editado pelo Natinha</label><select id="originalProjeto"><option>Carregando projetos originais…</option></select></div>
+    <div><label for="originalCorte">Qual corte receberá acabamento Remotion?</label><select id="originalCorte"><option>Escolha um projeto</option></select></div>
+  </div>
+  <div class="row" style="margin-top:15px"><button class="primary" id="gerarOriginal" type="button">APLICAR REMOTION AO CORTE ORIGINAL</button><span class="muted small" id="avisoOriginal"></span></div>
+</div>
+<div id="statusbox" class="card" hidden><div class="row" style="justify-content:space-between"><h2 id="nomeJob">Projeto</h2><span class="badge" id="situacao">Aguardando</span></div>
+<div class="progress"><div id="progresso"></div></div><p id="etapaAtual" class="muted">Preparando…</p><div class="row"><button id="abrir" type="button">ABRIR RESULTADOS</button><button id="retomar" type="button" hidden>RETOMAR JOB</button></div>
+<details style="margin-top:15px"><summary class="muted">Registro do processamento</summary><pre id="log" class="log">Aguardando…</pre></details>
+<div id="resultados"></div></div>
+<div class="card"><h2>Últimos projetos Remotion</h2><div id="historico" class="simple-list muted">Carregando…</div></div>
+</main><footer>Editor Natinha · Módulo Remotion separado · Nenhuma publicação automática</footer>
+<script>
+const el=id=>document.getElementById(id);
+let atual=null,timer=null;
+async function api(url,opts){
+ const r=await fetch(url,opts); let d;
+ try{d=await r.json()}catch(_){throw new Error('Resposta inesperada do editor')}
+ if(!r.ok)throw new Error(d.erro||('Erro HTTP '+r.status));
+ return d;
+}
+function formatoAtual(){
+ const horizontal=el('formato').value==='16x9';
+ el('estilo').querySelector('[value="limpo"]').disabled=!horizontal;
+ if(!horizontal)el('estilo').value='completo';
+ el('blocoCortes').hidden=horizontal;el('blocoDuracao').hidden=horizontal;
+}
+el('formato').addEventListener('change',formatoAtual);formatoAtual();
+el('editor').addEventListener('submit',async e=>{
+ e.preventDefault(); el('aviso').textContent='Verificando disponibilidade…';el('iniciar').disabled=true;
+ try{
+  const d=await api('/api/remotion/jobs',{method:'POST',body:new FormData(e.target)});
+  atual=d.id; el('statusbox').hidden=false;el('aviso').textContent='Edição iniciada. Pode acompanhar abaixo.';
+  await listar();await atualizar();
+ }catch(err){el('aviso').textContent=err.message}
+ finally{el('iniciar').disabled=false}
+});
+function mostrarArquivos(st){
+ const box=el('resultados');box.replaceChildren();
+ if(st.status!=='concluido'||!st.arquivos?.length)return;
+ const h=document.createElement('h2');h.textContent='Prévias disponíveis';h.style.marginTop='22px';box.append(h);
+ const grid=document.createElement('div');grid.className='video-list';box.append(grid);
+ st.arquivos.forEach(f=>{
+  const card=document.createElement('div');card.className='video-item';
+  const label=document.createElement('p');label.textContent=f.nome;label.className='small';
+  card.append(label);
+  if(f.nome.toLowerCase().endsWith('.mp4')){
+    const video=document.createElement('video');video.controls=true;video.preload='metadata';video.src=f.url;card.append(video);
+  }
+  const a=document.createElement('a');a.className='action';a.href=f.url;a.download='';a.textContent='Baixar '+(f.grupo==='legendas'?'legenda':'arquivo');card.append(a);grid.append(card);
+ });
+ const rel=document.createElement('p');rel.className='muted small';rel.style.marginTop='14px';
+ rel.textContent='Relatórios, mapas e registros estão na pasta do projeto. Revise o resultado antes de publicar.';box.append(rel);
+}
+async function atualizar(){
+ if(!atual)return;
+ try{
+  const st=await api('/api/remotion/jobs/'+atual);
+  el('nomeJob').textContent='Projeto '+st.id;
+  el('situacao').textContent=st.status||'aguardando';
+  el('situacao').className='badge'+(st.status==='erro'?' err':st.status==='concluido'?' success':'');
+  el('progresso').style.width=((st.fase||0)/(st.total_fases||7)*100)+'%';
+  el('etapaAtual').textContent=st.erro||st.etapa||'Aguardando…';
+  el('retomar').hidden=!['erro','interrompido'].includes(st.status);
+  el('log').textContent=(st.registro||[]).slice(-35).join('\n')||'Processando…';
+  mostrarArquivos(st);
+  if(['concluido','erro','interrompido'].includes(st.status)){clearInterval(timer);await listar()}
+ }catch(err){el('etapaAtual').textContent='Falha ao consultar: '+err.message}
+}
+async function abrirJob(id){
+ atual=id;el('statusbox').hidden=false;el('statusbox').scrollIntoView({behavior:'smooth'});
+ clearInterval(timer);await atualizar();timer=setInterval(atualizar,3000);
+}
+el('abrir').onclick=async()=>{
+ if(!atual)return;
+ try{await api('/api/remotion/jobs/'+atual+'/abrir',{method:'POST'})}catch(err){alert(err.message)}
+};
+el('retomar').onclick=async()=>{
+ try{await api('/api/remotion/jobs/'+atual+'/retomar',{method:'POST'});await abrirJob(atual)}
+ catch(err){alert(err.message)}
+};
+async function listar(){
+ try{
+  const jobs=await api('/api/remotion/jobs');const box=el('historico');box.replaceChildren();
+  if(!jobs.length){box.textContent='Nenhum projeto cinematográfico criado ainda.';return}
+  jobs.forEach(j=>{
+   const d=document.createElement('div');d.className='entry';
+   const sp=document.createElement('div');sp.textContent=(j.criado||'').replace('T',' ').slice(0,16)+' · '+j.formato+' · '+j.estilo+' · '+j.status;
+   const b=document.createElement('button');b.textContent='Ver projeto';b.onclick=()=>abrirJob(j.id);
+   d.append(sp,b);box.append(d);
+  })
+ }catch(err){el('historico').textContent=err.message}
+}
+let projetosNatinha=[];
+async function carregarOriginais(){
+ try{
+  projetosNatinha=await api('/api/remotion/original/projetos');
+  const p=el('originalProjeto');p.replaceChildren();
+  if(!projetosNatinha.length){p.add(new Option('Nenhum projeto antigo pronto',''));return}
+  projetosNatinha.forEach(x=>p.add(new Option(x.nome,x.nome)));
+  escolherOriginalCorte();
+ }catch(e){el('avisoOriginal').textContent='Não consegui ler projetos originais: '+e.message}
+}
+function escolherOriginalCorte(){
+ const item=projetosNatinha.find(x=>x.nome===el('originalProjeto').value);
+ const corte=el('originalCorte');corte.replaceChildren();
+ (item?.cortes||[]).forEach(c=>corte.add(new Option('Corte '+c.n+' · '+c.titulo+' ('+c.segundos+'s)',c.n)));
+}
+el('originalProjeto').onchange=escolherOriginalCorte;
+el('gerarOriginal').onclick=async()=>{
+ const btn=el('gerarOriginal');btn.disabled=true;el('avisoOriginal').textContent='Preparando edição com as habilidades do Natinha original…';
+ try{
+  const d=await api('/api/remotion/original/jobs',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({projeto:el('originalProjeto').value,corte:Number(el('originalCorte').value)})});
+  el('avisoOriginal').textContent='Integração iniciada. Os arquivos originais não serão modificados.';
+  await listar();await abrirJob(d.id);
+ }catch(e){el('avisoOriginal').textContent=e.message}finally{btn.disabled=false}
+};
+document.querySelector('main').insertBefore(el('integracaoNativa'), document.querySelector('main .card'));
+carregarOriginais();
+listar();setInterval(listar,16000);
+const jobParam=new URLSearchParams(location.search).get('job');
+if(/^rm_\d{8}_\d{6}_[a-f0-9]{6}$/.test(jobParam||''))abrirJob(jobParam);
+</script>
+</body>
+</html>

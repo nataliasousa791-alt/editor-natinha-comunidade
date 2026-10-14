@@ -1,0 +1,188 @@
+{
+  "whisper_modelo": "small",
+  "idioma": "pt",
+  "fps": 30,
+  "duracao_min": 60,
+  "duracao_alvo": 85,
+  "duracao_max": 150,
+  "pausa_max": 0.28,
+  "folga_palavra": 0.07,
+  "usar_ia": true,
+  "config_editor_antigo_somente_leitura": "",
+  "conceitos": {
+    "tempo": {
+      "rotulo": "TEMPO",
+      "gatilhos": [
+        "hora",
+        "horas",
+        "tempo",
+        "relógio",
+        "minuto",
+        "minutos",
+        "jornada",
+        "expediente"
+      ],
+      "busca": [
+        "wall clock time",
+        "clock hands"
+      ]
+    },
+    "trabalho": {
+      "rotulo": "TRABALHO",
+      "gatilhos": [
+        "trabalho",
+        "trabalhar",
+        "trabalha",
+        "trabalhador",
+        "emprego",
+        "serviço",
+        "obra"
+      ],
+      "busca": [
+        "construction worker",
+        "manual labor work"
+      ]
+    },
+    "dinheiro": {
+      "rotulo": "DINHEIRO",
+      "gatilhos": [
+        "dinheiro",
+        "salário",
+        "pagar",
+        "paga",
+        "pago",
+        "receber",
+        "recebe",
+        "reais",
+        "lucro",
+        "lucra",
+        "riqueza",
+        "rico",
+        "ricos",
+        "herança",
+        "patrimônio"
+      ],
+      "busca": [
+        "counting money banknotes",
+        "cash money hands"
+      ]
+    },
+    "mercado": {
+      "rotulo": "CUSTO DE VIDA",
+      "gatilhos": [
+        "mercado",
+        "supermercado",
+        "compras",
+        "comida",
+        "preço",
+        "preços",
+        "feira"
+      ],
+      "busca": [
+        "supermarket shopping",
+        "grocery store"
+      ]
+    },
+    "moradia": {
+      "rotulo": "MORADIA",
+      "gatilhos": [
+        "aluguel",
+        "moradia",
+        "morar",
+        "apartamento"
+      ],
+      "busca": [
+        "apartment building city",
+        "residential building"
+      ]
+    },
+    "transporte": {
+      "rotulo": "DESLOCAMENTO",
+      "gatilhos": [
+        "ônibus",
+        "metrô",
+        "trânsito",
+        "transporte",
+        "trem"
+      ],
+      "busca": [
+        "bus passengers city",
+        "traffic jam street"
+      ]
+    },
+    "tecnologia": {
+      "rotulo": "TELA",
+      "gatilhos": [
+        "celular",
+        "internet",
+        "algoritmo",
+        "redes",
+        "aplicativo"
+      ],
+      "busca": [
+        "smartphone scrolling hands"
+      ]
+    }
+  },
+  "sem_broll": [
+    "escravidão",
+    "escravo",
+    "escravos",
+    "favela",
+    "pobre",
+    "pobres",
+    "morte",
+    "morrer",
+    "violência",
+    "polícia",
+    "estupro",
+    "suicídio",
+    "escraviza",
+    "escravizar",
+    "escravizado",
+    "escravizada"
+  ],
+  "busca_proibida": [
+    "3d",
+    "animation",
+    "render",
+    "cartoon",
+    "illustration",
+    "abstract",
+    "background",
+    "fundo",
+    "ilustração",
+    "animação",
+    "green screen",
+    "tela verde",
+    "neon",
+    "intro",
+    "logo",
+    "particles"
+  ],
+  "expressoes_nao_conceito": [
+    "um tempo",
+    "há tempo",
+    "tempo atrás",
+    "mesmo tempo",
+    "todo tempo",
+    "o tempo todo",
+    "na hora",
+    "hora que",
+    "horas que",
+    "de casa",
+    "em casa",
+    "pra casa",
+    "faz tempo",
+    "a tempo",
+    "tempo de deus"
+  ],
+  "estilo": "neon",
+  "neon_anim_corte": 0.5,
+  "neon_anim_yt": 0.35,
+  "render_concorrencia": 1,
+  "render_parte_seg": 30,
+  "legenda_youtube": false,
+  "broll_avaliacao_visual": true,
+  "broll_nota_min": 7
+}

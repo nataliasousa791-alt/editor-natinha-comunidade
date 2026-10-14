@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor Natinha</title>
+<style>
+  :root{--bg:#120c1f;--card:#1d1430;--card2:#271b40;--linha:#3a2b5c;--txt:#f4eee3;--sub:#b8a9d6;--ouro:#f2c14e;--verm:#e0566a;--ok:#9fe870}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+  header{display:flex;align-items:center;gap:14px;padding:18px 28px;border-bottom:1px solid var(--linha)}
+  header h1{font-size:20px;margin:0;letter-spacing:.5px} header h1 b{color:var(--ouro)}
+  header nav{margin-left:auto;display:flex;gap:8px}
+  main{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+  .btn{display:inline-block;text-decoration:none}
+  button,.btn{background:var(--card2);color:var(--txt);border:1px solid var(--linha);border-radius:10px;padding:9px 14px;cursor:pointer;font:inherit}
+  button:hover{border-color:var(--ouro)} button.pri{background:var(--ouro);color:#1a1226;border:0;font-weight:700}
+  button:disabled{opacity:.5;cursor:default}
+  .card{background:var(--card);border:1px solid var(--linha);border-radius:16px;padding:20px;margin-bottom:18px}
+  .drop{border:2px dashed var(--linha);border-radius:16px;padding:36px;text-align:center;color:var(--sub);cursor:pointer}
+  .drop.on{border-color:var(--ouro);color:var(--txt)}
+  input[type=text],input[type=password],input[type=number],select,textarea{width:100%;background:var(--bg);color:var(--txt);border:1px solid var(--linha);border-radius:8px;padding:9px 10px;font:inherit}
+  label{display:block;margin:12px 0 4px;color:var(--sub);font-size:13px}
+  .lista a{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;color:var(--txt);text-decoration:none;border:1px solid transparent}
+  .lista a:hover{background:var(--card2);border-color:var(--linha)}
+  .barra{height:8px;background:var(--bg);border-radius:9px;overflow:hidden;margin:10px 0}
+  .barra i{display:block;height:100%;background:linear-gradient(90deg,#8d5cf6,var(--ouro));transition:width .5s}
+  .log{background:#0b0714;border-radius:10px;padding:10px 12px;font:12px/1.5 ui-monospace,Consolas,monospace;color:var(--sub);max-height:180px;overflow:auto;white-space:pre-wrap}
+  .grade{display:grid;grid-template-columns:320px 1fr;gap:20px}
+  @media (max-width:820px){.grade{grid-template-columns:1fr} header{padding:14px 16px} main{padding:16px 12px 60px}
+    header h1{font-size:17px} .card{padding:16px}}
+  video{width:100%;border-radius:12px;background:#000}
+  .brolls{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .br{background:var(--card2);border-radius:12px;padding:8px;font-size:13px}
+  .br video{aspect-ratio:9/16;object-fit:cover}
+  video.vert{aspect-ratio:9/16;max-height:620px;object-fit:contain}
+  .br .acoes{display:flex;gap:6px;margin-top:6px} .br .acoes button{padding:5px 8px;font-size:12px;flex:1}
+  .tag{display:inline-block;background:var(--card2);border:1px solid var(--linha);border-radius:99px;padding:2px 10px;font-size:12px;color:var(--sub)}
+  .erro{color:var(--verm)} .ok{color:var(--ok)} .sub{color:var(--sub)}
+  h2{margin:0 0 10px;font-size:18px} h3{margin:0 0 8px;font-size:16px;color:var(--ouro)}
+  .linha{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  pre.info{white-space:pre-wrap;background:var(--bg);border-radius:10px;padding:12px;font:13px/1.5 inherit;color:var(--sub)}
+  .oculto{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Editor <b>Natinha</b></h1>
+  <nav><button onclick="ir('')">Projetos</button><a class="btn" href="/remotion">🎬 Edição Cinematográfica · Remotion</a><button onclick="ir('config')">Configurações</button></nav>
+</header>
+<main id="app"></main>
+<script>
+const $ = s => document.querySelector(s);
+const api = (u, o) => fetch(u, o).then(r => r.json());
+let timer = null;
+function ir(h){ location.hash = h; }
+window.onhashchange = render; render();
+
+function render(){
+  clearInterval(timer);
+  const h = location.hash.slice(1);
+  if (h === 'config') return telaConfig();
+  if (h.startsWith('p/')) return telaProjeto(decodeURIComponent(h.slice(2)));
+  telaInicio();
+}
+
+async function telaInicio(){
+  $('#app').innerHTML = `
+  <div class="card">
+    <h2>Novo vídeo</h2>
+    <p class="sub">Arraste o vídeo bruto (horizontal) aqui. O sistema faz a versão do YouTube e depois os cortes com legenda e B-rolls.</p>
+    <div class="drop" id="drop">Solte o vídeo aqui ou clique para escolher<input type="file" id="arq" accept="video/*" class="oculto"></div>
+    <label>…ou cole o caminho do arquivo no seu PC (mais rápido para vídeos grandes)</label>
+    <div class="linha"><input type="text" id="cam" placeholder="C:/Users/SEU_USUARIO\\Videos\\meu_video.mp4" style="flex:1"><button class="pri" onclick="enviarCaminho()">Começar</button></div>
+    <label>Versão do editor para este vídeo</label><select id="versao"><option>Carregando…</option></select>
+    <div id="up" class="sub"></div>
+  </div>
+  <div class="card" id="cel"></div>
+  <div class="card"><h2>Projetos</h2><div class="lista" id="lista">Carregando…</div></div>`;
+  api('/api/versoes').then(v => {
+    $('#versao').innerHTML = v.lista.map(x => `<option value="${x.id}" ${x.id === v.padrao ? 'selected' : ''}>${x.nome}</option>`).join('');
+  });
+  api('/api/acesso').then(a => {
+    $('#cel').innerHTML = `<h2>📲 Pelo celular</h2>
+      ${a.celular ? `<p><b>Em casa (mesmo Wi-Fi):</b> abra no navegador do celular <span class="tag" style="font-size:15px;color:var(--ouro)">${a.celular}</span></p>` : ''}
+      ${a.nuvem ? `<p><b>De qualquer lugar (OneDrive):</b> salve o vídeo pelo app do OneDrive na pasta <span class="tag">Editor Natinha › entrada</span>.
+        O PC (ligado, com o editor aberto) edita sozinho e coloca tudo em <span class="tag">Editor Natinha › prontos</span>.</p>` : '<p class="sub">OneDrive não encontrado neste PC.</p>'}`;
+  });
+  const d = $('#drop'), a = $('#arq');
+  d.onclick = () => a.click();
+  d.ondragover = e => { e.preventDefault(); d.classList.add('on'); };
+  d.ondragleave = () => d.classList.remove('on');
+  d.ondrop = e => { e.preventDefault(); d.classList.remove('on'); if (e.dataTransfer.files[0]) enviarArquivo(e.dataTransfer.files[0]); };
+  a.onchange = () => a.files[0] && enviarArquivo(a.files[0]);
+  carregarLista(); timer = setInterval(carregarLista, 4000);
+}
+async function carregarLista(){
+  const ps = await api('/api/projetos');
+  $('#lista').innerHTML = ps.length ? ps.map(p => `<a href="#p/${encodeURIComponent(p.nome)}"><span><b>${p.titulo || p.nome}</b><br><span class="sub" style="font-size:12px">${p.data ? 'enviado em ' + p.data + ' · ' : ''}${p.nome}</span></span>
+    <span class="${p.erro ? 'erro' : p.pronto ? 'ok' : 'sub'}">${p.erro ? 'erro — abrir' : p.pronto ? 'pronto' : (p.etapa || '') + ' ' + (p.pct || 0) + '%'}</span></a>`).join('')
+    : '<p class="sub">Nenhum projeto ainda.</p>';
+}
+function enviarArquivo(f){
+  const fd = new FormData(); fd.append('video', f); fd.append('versao', $('#versao').value);
+  const x = new XMLHttpRequest(); x.open('POST', '/api/enviar');
+  x.upload.onprogress = e => $('#up').textContent = 'Enviando… ' + Math.round(100 * e.loaded / e.total) + '%';
+  x.onload = () => { const r = JSON.parse(x.responseText); if (r.nome) ir('p/' + r.nome); else $('#up').textContent = r.erro; };
+  x.send(fd);
+}
+async function enviarCaminho(){
+  const fd = new FormData(); fd.append('caminho', $('#cam').value); fd.append('versao', $('#versao').value);
+  const r = await api('/api/enviar', {method: 'POST', body: fd});
+  if (r.nome) ir('p/' + r.nome); else $('#up').textContent = r.erro;
+}
+
+async function telaProjeto(nome){
+  $('#app').innerHTML = `<div class="card"><div class="linha"><h2 style="margin:0">${nome}</h2>
+    <span style="margin-left:auto"></span><button onclick="abrirPasta('${nome}')">Abrir pasta</button>
+    <button id="cont" onclick="continuar('${nome}')">Continuar / tentar de novo</button></div>
+    <div class="barra"><i id="bar" style="width:0"></i></div><div id="etapa" class="sub"></div>
+    <details><summary class="sub">Registro</summary><div class="log" id="log"></div></details>
+    <div class="linha" style="margin-top:12px;align-items:flex-start">
+      <img id="mini" src="/api/projeto/${nome}/miniatura" style="max-height:160px;border-radius:10px;background:#000">
+      <div><p class="sub" style="margin:0 0 8px">O vídeo bruto está de pé? Se estiver deitado, gire aqui (o sistema refaz sozinho):</p>
+      <div class="linha"><button onclick="girar('${nome}',-90)">↺ Girar para a esquerda</button>
+      <button onclick="girar('${nome}',90)">↻ Girar para a direita</button>
+      <button onclick="girar('${nome}',180)">⟲ De cabeça para baixo</button></div></div></div></div>
+    <div id="yt"></div><div id="cortes"></div>`;
+  let assinatura = '';
+  const atualizar = async () => {
+    const p = await api('/api/projeto/' + encodeURIComponent(nome));
+    $('#bar').style.width = (p.pct || 0) + '%';
+    $('#etapa').innerHTML = p.erro ? `<span class="erro">Erro: ${p.erro}</span>` : (p.ocupado || p.etapa || '') + (p.rodando ? ' …' : '');
+    $('#log').textContent = (p.log || []).join('\n'); $('#log').scrollTop = 1e9;
+    $('#cont').disabled = p.rodando;
+    const sig = JSON.stringify([p.youtube, p.youtube_imagens, p.insercoes, p.youtube_info, p.cortes, p.rodando]);
+    if (sig === assinatura) return; assinatura = sig;
+    const ytArq = p.youtube_imagens ? 'youtube_com_imagens.mp4' : 'youtube.mp4';
+    const ins = p.insercoes || [];
+    $('#yt').innerHTML = p.youtube ? `<div class="card"><h2>Versão YouTube</h2><div class="grade">
+      <div><video controls preload="metadata" src="/arquivo/${nome}/${ytArq}?v=${Date.now()}"></video>
+      <div class="linha" style="margin:10px 0"><a class="btn" href="/arquivo/${nome}/${ytArq}" download>Baixar vídeo${p.youtube_imagens ? ' (com imagens)' : ''}</a>
+        ${p.youtube_imagens ? `<a class="btn" href="/arquivo/${nome}/youtube.mp4" download>Baixar sem imagens</a>` : ''}
+        <a class="btn" href="/arquivo/${nome}/youtube.srt" download>Baixar legenda .srt</a></div>
+      ${ins.length ? `<label>Imagens que aparecem no vídeo</label><p class="sub">${ins.map(i => `<span class="tag">${Math.floor(i.tempo / 60)}:${String(Math.floor(i.tempo % 60)).padStart(2, '0')} · ${i.texto || i.palavra}</span>`).join(' ')}</p>` : ''}
+      <p><button onclick="refazerImagens('${nome}')" ${p.rodando ? 'disabled' : ''}>Refazer as imagens</button></p></div>
+      <pre class="info">${(p.youtube_info || 'Título e capítulos aparecem aqui quando a IA terminar.').replace(/</g, '&lt;')}</pre></div></div>` : '';
+    $('#cortes').innerHTML = (p.cortes || []).map(c => `<div class="card"><div class="grade">
+      <div>${c.video ? `<video class="vert" controls preload="metadata" src="/arquivo/${nome}/${c.video}?v=${Date.now()}"></video>
+        <p><a class="btn" href="/arquivo/${nome}/${c.video}" download>Baixar corte</a></p>` : '<p class="sub">Montando…</p>'}</div>
+      <div><h3>Corte ${c.n} · ${c.titulo || ''}</h3>
+        <span class="tag">${(c.e - c.s).toFixed(0)}s</span> <span class="sub">${c.por_que || ''}</span>
+        ${c.legenda_post ? `<label>Legenda para o post</label><textarea rows="3" readonly>${c.legenda_post}</textarea>` : ''}
+        <label>B-rolls (refazer cria outra ideia; o corte é remontado sozinho)</label>
+        <div class="brolls">${(c.brolls || []).map((b, k) => `<div class="br">
+          ${b.video ? `<video muted loop autoplay playsinline src="/arquivo/${nome}/${b.video}"></video>` : `<p class="${b.erro ? 'erro' : 'sub'}">${b.erro ? 'falhou' : 'desenhando…'}</p>`}
+          <div><b>${b.inicio}s</b> · ${b.ideia || b.frase || ''}</div>
+          <div class="acoes"><button onclick="refazer('${nome}',${c.n},${k})" ${p.rodando ? 'disabled' : ''}>Refazer</button>
+          <button onclick="tirar('${nome}',${c.n},${k})" ${p.rodando ? 'disabled' : ''}>Tirar</button></div></div>`).join('') || '<p class="sub">Nenhum.</p>'}</div>
+      </div></div></div>`).join('');
+  };
+  atualizar(); timer = setInterval(atualizar, 3000);
+}
+async function girar(n, g){
+  if (!confirm('Girar o vídeo e refazer a versão do YouTube e os cortes?')) return;
+  await api(`/api/projeto/${n}/girar`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({graus: g})});
+  setTimeout(() => { const m = document.querySelector('#mini'); if (m) m.src = `/api/projeto/${n}/miniatura?t=` + Date.now(); }, 800);
+}
+async function refazerImagens(n){
+  if (!confirm('Pedir outras imagens para o vídeo do YouTube?')) return;
+  await api(`/api/projeto/${n}/refazer_imagens`, {method: 'POST'});
+}
+async function continuar(n){ await api(`/api/projeto/${n}/continuar`, {method: 'POST'}); }
+async function abrirPasta(n){ await api(`/api/projeto/${n}/abrir`, {method: 'POST'}); }
+async function refazer(n, c, k){
+  const pedido = prompt('Quer pedir algo específico para este B-roll? (pode deixar em branco)', '');
+  if (pedido === null) return;
+  await api(`/api/projeto/${n}/refazer`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({corte: c, broll: k, pedido})});
+}
+async function tirar(n, c, k){
+  if (!confirm('Tirar este B-roll do corte?')) return;
+  await api(`/api/projeto/${n}/tirar`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({corte: c, broll: k})});
+}
+
+async function telaConfig(){
+  const c = await api('/api/config');
+  const vs = await api('/api/versoes');
+  const campo = (k, rot, tipo = 'text', extra = '') => `<label>${rot}</label><input type="${tipo}" id="c_${k}" value="${c[k] ?? ''}" ${extra}>`;
+  $('#app').innerHTML = `<div class="card"><h2>Configurações</h2>
+    ${campo('gemini_chave', 'Chave do Gemini (aistudio.google.com → Get API key)', 'password')}
+    ${campo('pixabay_chave', 'Chave do Pixabay — vídeos reais grátis (pixabay.com/api/docs)', 'password')}
+    ${campo('pexels_chave', 'Chave do Pexels — vídeos reais grátis (pexels.com/api)', 'password')}
+    <label>Qualidade da transcrição</label><select id="c_whisper_modelo">${['base', 'small', 'medium', 'large-v3-turbo'].map(m => `<option ${c.whisper_modelo === m ? 'selected' : ''}>${m}</option>`).join('')}</select>
+    <p class="sub">small = rápido e bom · medium/large-v3-turbo = erra menos, mais lento</p>
+    <label>Versão padrão do editor (vídeos que chegam pelo Drive)</label><select id="c_versao_padrao">${vs.lista.map(x => `<option value="${x.id}" ${x.id === vs.padrao ? 'selected' : ''}>${x.nome}</option>`).join('')}</select>
+    <p class="sub">No envio pelo site você escolhe a versão de cada vídeo.</p>
+    ${campo('n_cortes', 'Quantos cortes por vídeo', 'number')}
+    <div class="linha">${campo('corte_min', 'Duração mínima (s)', 'number')}${campo('corte_max', 'Duração máxima (s)', 'number')}</div>
+    <label>Motor de imagens (B-rolls)</label><select id="c_broll_engine_v2">
+      <option value="1" ${c.broll_engine_v2 ? 'selected' : ''}>V2 — editorial (recomendado)</option><option value="" ${!c.broll_engine_v2 ? 'selected' : ''}>Antigo</option></select>
+    <div class="linha">${campo('brolls_intervalo_corte', 'Cortes: 1 B-roll a cada (s)', 'number')}${campo('animacoes_por_corte', 'Animações por corte', 'number')}</div>
+    <label>B-rolls no vídeo do YouTube</label><select id="c_youtube_brolls">
+      <option value="1" ${c.youtube_brolls ? 'selected' : ''}>Ligado</option><option value="" ${!c.youtube_brolls ? 'selected' : ''}>Desligado</option></select>
+    <div class="linha">${campo('youtube_video_intervalo', 'YouTube: 1 vídeo real a cada (s)', 'number')}${campo('youtube_animacao_intervalo', 'YouTube: 1 animação a cada (s)', 'number')}</div>
+    <label>Imagens (ícones) no vídeo do YouTube</label><select id="c_insercoes_youtube">
+      <option value="1" ${c.insercoes_youtube ? 'selected' : ''}>Ligado</option><option value="" ${!c.insercoes_youtube ? 'selected' : ''}>Desligado</option></select>
+    ${campo('insercoes_quantidade', 'Quantas imagens no vídeo do YouTube (mais ou menos)', 'number')}
+    <label>Lado das imagens</label><select id="c_insercoes_lado">
+      <option value="esquerda" ${c.insercoes_lado !== 'direita' ? 'selected' : ''}>Esquerda</option>
+      <option value="direita" ${c.insercoes_lado === 'direita' ? 'selected' : ''}>Direita</option></select>
+    <label>Formato vertical</label><select id="c_formato_vertical">
+      <option value="faixa" ${c.formato_vertical === 'faixa' ? 'selected' : ''}>Vídeo inteiro com fundo desfocado</option>
+      <option value="recorte" ${c.formato_vertical === 'recorte' ? 'selected' : ''}>Recortar para preencher a tela</option></select>
+    ${campo('legenda_cor_destaque', 'Cor da palavra em destaque na legenda', 'color')}
+    <details><summary class="sub" style="margin-top:14px">Avançado</summary>
+      ${campo('silencio_db', 'Nível de silêncio (dB)', 'number')}
+      ${campo('openai_compat_url', 'API extra compatível com OpenAI (DeepSeek, Ollama…) — opcional')}
+      ${campo('openai_compat_modelo', 'Modelo dessa API')}
+      ${campo('openai_compat_chave', 'Chave dessa API', 'password')}
+    </details>
+    <p><button class="pri" onclick="salvar()">Salvar</button> <span id="salvo" class="ok"></span></p></div>`;
+}
+async function salvar(){
+  const d = {};
+  document.querySelectorAll('[id^=c_]').forEach(el => d[el.id.slice(2)] = el.value);
+  await api('/api/config', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(d)});
+  $('#salvo').textContent = 'Salvo!';
+}
+</script>
+</body>
+</html>

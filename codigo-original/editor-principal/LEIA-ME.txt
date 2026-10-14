@@ -1,0 +1,28 @@
+EDITOR NATINHA — como usar
+
+INSTALAR (só uma vez)
+1. Dê dois cliques em  instalar.bat  e espere terminar (baixa as bibliotecas e o ffmpeg).
+2. Dê dois cliques em  iniciar.bat . O navegador abre sozinho.
+3. Clique em Configurações e cole a sua chave do Gemini (aistudio.google.com > Get API key). Salvar.
+
+TODO DIA
+1. Abra o  iniciar.bat .
+2. Arraste o vídeo bruto (horizontal) para a tela, ou cole o caminho do arquivo e clique em Começar.
+3. Espere: transcrição → versão YouTube → 3 cortes → B-rolls → montagem. Dá para acompanhar na tela.
+4. Assista. Não gostou de um B-roll? Clique em "Refazer" (pode pedir algo, ex.: "mostra dinheiro").
+   Quer sem aquele B-roll? "Tirar". O corte é remontado sozinho.
+5. Baixe o vídeo do YouTube, a legenda .srt e os cortes. Título, descrição e capítulos aparecem prontos.
+
+SE DER ERRO
+- Clique em "Continuar / tentar de novo" (o Gemini às vezes fica ocupado; ele tenta outros modelos).
+- Se continuar, abra o "Registro", copie a mensagem e mande para o Claude.
+
+Os arquivos de cada vídeo ficam em:  projetos\<nome do vídeo>\
+Ícones: game-icons.net (CC BY 3.0), Material Design Icons, Phosphor Icons — se quiser, credite na descrição.
+
+CHECKLIST DO DIA
+[ ] Gravar o vídeo na horizontal
+[ ] Jogar no Editor Natinha
+[ ] Conferir a versão do YouTube e copiar título/descrição/capítulos
+[ ] Assistir os 3 cortes e refazer os B-rolls que não curtir
+[ ] Postar (legenda do post já vem pronta em cada corte)
